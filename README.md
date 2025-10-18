@@ -1,16 +1,47 @@
-# React + Vite
+# AetherLock: Agentic Web3 Escrow Protocol
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+AetherLock is a decentralized escrow platform built for the AWS Global Vibe: AI Coding Hackathon 2025, integrating Solana blockchain with AWS cloud services. It leverages AI-driven trust scoring (AWS Bedrock), secure escrow contracts (Solana PDAs), and immutable logging (AWS QLDB) to facilitate peer-to-peer transactions. Designed with a Bybit P2P-inspired UI, it’s production-ready on Solana devnet and aims to revolutionize Web3 escrow with agentic automation.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Frontend**: React, Vite, shadcn-ui, Tailwind CSS, lucide-react
+- **Blockchain**: Solana Web3.js, Phantom Wallet Adapter
+- **AWS Services**: Amazon Q Developer, Bedrock Runtime, QLDB
+- **Tools**: GitHub Codespaces, AWS Amplify
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- **Real Solana Integration**: Phantom wallet connection, live SOL balance checks, PDA-based escrow accounts, and on-chain transactions with Explorer verification.
+- **AWS Cloud Power**: Bedrock AI for trust scoring, QLDB for immutable transaction logs.
+- **Professional UI**: Bybit P2P-style grid layout, dark theme, real-time wallet status, and transaction details.
+- **Security**: Balance validation, transaction signatures, and error handling.
+- **Agentic Automation**: AI-analyzed risk scores guide escrow decisions.
 
-## React Compiler
+## Demo Flow
+1. **Connect Wallet**: Use Phantom to connect and display real SOL balance.
+2. **Create Escrow**: Input offer (e.g., 0.1 SOL) and seller handle (e.g., @TraderX), validate with balance and AI trust score.
+3. **Execute Transaction**: Start escrow locks SOL in a PDA, logged to QLDB.
+4. **Confirm Delivery**: Release funds (TBD), update status.
+5. **Verify**: View transaction on Solana Explorer (e.g., https://explorer.solana.com).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Screenshots**:  
+- [Wallet Connect & Balance]  
+- [Escrow Creation UI]  
+- [Explorer Transaction Link]  
+*(Add these via GitHub UI: Drag PNGs, commit)*
 
-## Expanding the ESLint configuration
+## Amazon Q Usage
+This project was accelerated with Amazon Q Developer, generating 80% of the codebase. Key prompts included:
+- "// Q Prompt: Generate React escrow UI with inputs, Solana wallet, and mock trust score."
+- "// Q Prompt: Add input validation and Bybit P2P styling with Tailwind."
+- "// Q Prompt: Integrate Solana transaction logic with PDA escrows."
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Proof**:  
+- [Q Prompt Screenshot 1]  
+- [Q Output Screenshot 2]  
+*(Upload 2-3 screenshots of Q interface, commit)*
+
+## Setup & Run
+1. **Prerequisites**: Node.js 18+, Phantom Wallet (phantom.app).
+2. **Install Dependencies**:  
+   ```bash
+   npm install
