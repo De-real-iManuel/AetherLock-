@@ -1,47 +1,55 @@
-# AetherLock: Agentic Web3 Escrow Protocol
+# 🧠 AetherLock Protocol
 
-## Overview
-AetherLock is a decentralized escrow platform built for the AWS Global Vibe: AI Coding Hackathon 2025, integrating Solana blockchain with AWS cloud services. It leverages AI-driven trust scoring (AWS Bedrock), secure escrow contracts (Solana PDAs), and immutable logging (AWS QLDB) to facilitate peer-to-peer transactions. Designed with a Bybit P2P-inspired UI, it’s production-ready on Solana devnet and aims to revolutionize Web3 escrow with agentic automation.
+> **AI-driven, trustless, and agentic escrow & verification protocol**  
+> Combining **Blockchain**, **AI Agents**, and **Zero-Knowledge Identity** to power the next evolution of secure P2P transactions.
 
-## Tech Stack
-- **Frontend**: React, Vite, shadcn-ui, Tailwind CSS, lucide-react
-- **Blockchain**: Solana Web3.js, Phantom Wallet Adapter
-- **AWS Services**: Amazon Q Developer, Bedrock Runtime, QLDB
-- **Tools**: GitHub Codespaces, AWS Amplify
+---
 
-## Features
-- **Real Solana Integration**: Phantom wallet connection, live SOL balance checks, PDA-based escrow accounts, and on-chain transactions with Explorer verification.
-- **AWS Cloud Power**: Bedrock AI for trust scoring, QLDB for immutable transaction logs.
-- **Professional UI**: Bybit P2P-style grid layout, dark theme, real-time wallet status, and transaction details.
-- **Security**: Balance validation, transaction signatures, and error handling.
-- **Agentic Automation**: AI-analyzed risk scores guide escrow decisions.
+## 🌌 Overview
 
-## Demo Flow
-1. **Connect Wallet**: Use Phantom to connect and display real SOL balance.
-2. **Create Escrow**: Input offer (e.g., 0.1 SOL) and seller handle (e.g., @TraderX), validate with balance and AI trust score.
-3. **Execute Transaction**: Start escrow locks SOL in a PDA, logged to QLDB.
-4. **Confirm Delivery**: Release funds (TBD), update status.
-5. **Verify**: View transaction on Solana Explorer (e.g., https://explorer.solana.com).
+**AetherLock** is a **multi-layer protocol** that enables **autonomous escrow and task verification** across Web3 ecosystems.  
+It integrates **Solana smart contracts**, **ZetaChain’s cross-chain verification**, and **zkMe’s zero-knowledge KYC** with **AI-powered agents** that act as unbiased digital mediators.
 
-**Screenshots**:  
-- [Wallet Connect & Balance]  
-- [Escrow Creation UI]  
-- [Explorer Transaction Link]  
-*(Add these via GitHub UI: Drag PNGs, commit)*
+AetherLock provides the missing link between **trust**, **automation**, and **privacy** — allowing users to transact, verify, and resolve disputes without intermediaries.
 
-## Amazon Q Usage
-This project was accelerated with Amazon Q Developer, generating 80% of the codebase. Key prompts included:
-- "// Q Prompt: Generate React escrow UI with inputs, Solana wallet, and mock trust score."
-- "// Q Prompt: Add input validation and Bybit P2P styling with Tailwind."
-- "// Q Prompt: Integrate Solana transaction logic with PDA escrows."
+---
 
-**Proof**:  
-- [Q Prompt Screenshot 1]  
-- [Q Output Screenshot 2]  
-*(Upload 2-3 screenshots of Q interface, commit)*
+## 🚀 Core Features
 
-## Setup & Run
-1. **Prerequisites**: Node.js 18+, Phantom Wallet (phantom.app).
-2. **Install Dependencies**:  
-   ```bash
-   npm install
+| Feature | Description |
+|----------|--------------|
+| **Agentic Escrow** | AI-powered escrow that releases funds based on verified task completion |
+| **Zero-Knowledge KYC** | zkMe integration ensures compliance without exposing user data |
+| **AI Verification Agents** | Off-chain models analyze submitted evidence and sign results cryptographically |
+| **Dispute Resolution** | Built-in time-bound dispute process with admin fallback |
+| **Cross-chain Proof Validation** | Uses ZetaChain to validate zk proofs across multiple chains |
+| **Decentralized Evidence Storage** | IPFS for transparent, immutable, and privacy-preserving evidence logs |
+
+---
+
+## 🏗️ Architecture
+
+```text
+┌──────────────────────────────────────────┐
+│              AetherLock Frontend         │
+│   (React + Tailwind + Solana Wallets)    │
+└──────────────┬───────────────────────────┘
+               │
+     ┌─────────┴─────────┐
+     ▼                   ▼
+┌────────────┐     ┌──────────────┐
+│ zkMe Proof │     │ AI Agent     │
+│ Generation │     │ Verification │
+└─────┬──────┘     └──────┬──────┘
+      │                   │
+      ▼                   ▼
+┌──────────────────────────────────────────┐
+│       Solana Escrow Smart Contract       │
+│ (Handles deposits, release, disputes)    │
+└──────────────────────────────────────────┘
+               │
+               ▼
+       ┌───────────────┐
+       │ ZetaChain Hub │
+       │ (Proof relay) │
+       └───────────────┘
