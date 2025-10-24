@@ -3,6 +3,8 @@ import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ParticleField } from "@/components/ui/particle-field"
+import { GlitchText } from "@/components/animations/glitch-text"
+import { FloatingLogoCanvas } from "@/components/3d/floating-logo"
 
 const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
   const [displayText, setDisplayText] = React.useState("")
@@ -38,10 +40,12 @@ export const HeroSection = () => {
           transition={{ duration: 0.8 }}
           className="space-y-8"
         >
+          <FloatingLogoCanvas />
+          
           <h1 className="text-4xl md:text-6xl font-display font-bold text-white leading-tight">
-            <TypewriterText text="Trustless AI Escrow" />
+            <GlitchText text="Trustless AI Escrow" className="block" />
             <br />
-            <span className="text-accent-electric">
+            <span className="text-cyberpunk-400">
               <TypewriterText text="for Web3 Transactions" delay={1500} />
             </span>
           </h1>

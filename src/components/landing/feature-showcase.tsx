@@ -1,6 +1,7 @@
 import * as React from "react"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { HolographicCard } from "@/components/animations/holographic-card"
 import { Brain, Shield, Zap } from "lucide-react"
 import { containerVariants, itemVariants } from "@/lib/animations"
 
@@ -56,28 +57,30 @@ export const FeatureShowcase = () => {
           animate={isInView ? "animate" : "initial"}
           className="grid md:grid-cols-3 gap-8"
         >
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const Icon = feature.icon
             return (
               <motion.div key={feature.title} variants={itemVariants}>
-                <Card className="h-full group hover:scale-105 transition-transform duration-300">
-                  <CardHeader className="text-center">
-                    <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${feature.gradient} flex items-center justify-center`}>
-                      <Icon className="w-8 h-8 text-black" />
-                    </div>
-                    <CardTitle className={`text-${feature.color}`}>
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate-300 text-center leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <HolographicCard className="h-full">
+                  <Card className="h-full border-0 bg-transparent">
+                    <CardHeader className="text-center">
+                      <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${feature.gradient} flex items-center justify-center`}>
+                        <Icon className="w-8 h-8 text-black" />
+                      </div>
+                      <CardTitle className={`text-${feature.color}`}>
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-center leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </HolographicCard>
               </motion.div>
             )
-          })}
+          })
         </motion.div>
       </div>
     </section>

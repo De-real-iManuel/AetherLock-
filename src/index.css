@@ -7,7 +7,7 @@
 
 @layer base {
   body {
-    background-color: #000000;
+    background-color: linear-gradient(135deg, #0a0a0a, #0d1b2a, #1b263b, #415a77);
     color: #ffffff;
     font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -29,4 +29,14 @@
       linear-gradient(90deg, rgba(0, 212, 170, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
   }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

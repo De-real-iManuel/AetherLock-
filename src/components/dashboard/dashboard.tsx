@@ -1,12 +1,14 @@
 import * as React from "react"
+import { motion } from "framer-motion"
 import { DashboardLayout } from "./dashboard-layout"
 import { EscrowList } from "./escrow-list"
+import { EscrowCreationWizard } from "./escrow-creation-wizard"
 import { ZkMeWidget } from "@/components/kyc/zkme-widget"
 import { useWalletStore } from "@/store/walletStore"
 import { useEscrowStore } from "@/store/escrowStore"
 import { useKycStore } from "@/store/kycStore"
 import { Button } from "@/components/ui/button"
-import { Wallet } from "lucide-react"
+import { Wallet, Plus } from "lucide-react"
 
 // Mock data for demonstration
 const mockEscrows = [
@@ -48,6 +50,7 @@ export const Dashboard = () => {
   const { isConnected } = useWalletStore()
   const { setEscrows } = useEscrowStore()
   const { showWidget, setShowWidget, setVerified, setHasSeenPrompt } = useKycStore()
+  const [showCreateWizard, setShowCreateWizard] = React.useState(false)
 
   const handleVerificationComplete = (result: any) => {
     setVerified(true, result)
@@ -88,7 +91,21 @@ export const Dashboard = () => {
     <>
       <DashboardLayout>
         <EscrowList />
+        
+        {/* Floating Action Button */}
+        <motion.button
+          className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-cyberpunk-500 to-purple-500 rounded-full shadow-cyber-lg flex items-center justify-center text-black font-bold z-40"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowCreateWizard(true)}
+        >
+          <Plus className="w-8 h-8" />
+        </motion.button>
       </DashboardLayout>
+      
+      {showCreateWizard && (
+        <EscrowCreationWizard onClose={() => setShowCreateWizard(false)} />
+      )}
       
       <ZkMeWidget
         isOpen={showWidget}
