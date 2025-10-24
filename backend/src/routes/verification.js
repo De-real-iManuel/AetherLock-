@@ -200,67 +200,73 @@ function createDeterministicScore(taskDescription, processedEvidence, aiAnalysis
   const hasDocuments = processedEvidence.some(e => e.content_analysis?.file_type === 'document');
   
   let diversityScore = Math.min(uniqueTypes * 4, 12);
-  if (hasImages && (taskDescription.toLowerCase().includes('{
+  if (hasImages && (taskDescription.toLowerCase().includes('screenshot') || taskDescription.toLowerCase().includes('image'))) {
     diversityScore += 3;
   }
-
+  if (hasCode && (taskDescription.toLowerCase().includes('code') || taskDescription.toLowerCase().includes('programming'))) {
     diversityScore += 3;
   }
   diversityScore = Math.min(diversityScore, 18);
-yScore;
-  factors.);
+  score += diversityScore;
+  factors.push(`Evidence diversity: ${uniqueTypes} types, bonus features (${diversityScore}/18 points)`);
 
-  // Factor 3: File size2 points)
-  const totalSize = processedEvidence.reduce((sum, e);
-  const avgSize = totalSi 1);
+  // Factor 3: File size and quality (0-12 points)
+  const totalSize = processedEvidence.reduce((sum, e) => sum + (e.size || 0), 0);
+  const avgSize = totalSize / Math.max(processedEvidence.length, 1);
   
-  let sizeSc0;
+  let sizeScore = 0;
   if (totalSize > 1000) {
     // Reward substantial evidence but not excessive files
-    * 8, 8);
+    sizeScore = Math.min((totalSize / 100000) * 8, 8);
     
-e)
-    {
+    if (avgSize > 10000 && avgSize < 2000000) {
       sizeScore += 4;
     }
   }
   sizeScore = Math.min(sizeScore, 12);
-  se;
-  factors.push(`File quality: ${totalSize} bytes total, avg ${Mat
+  score += sizeScore;
+  factors.push(`File quality: ${totalSize} bytes total, avg ${Math.round(avgSize)} bytes (${sizeScore.toFixed(1)}/12 points)`);
 
   // Factor 4: AI confidence with keyword matching (0-35 points)
-  co30;
+  const baseAiScore = (aiAnalysis.confidence || 0) * 30;
   let keywordBonus = 0;
   
-  ife) {
+  if (aiAnalysis.keyword_match_score !== undefined) {
     keywordBonus = aiAnalysis.keyword_match_score * 5;
   }
   
-  const aiScore = Math
+  const aiScore = Math.min(baseAiScore + keywordBonus, 35);
   score += aiScore;
-  factors.push(`AI analysis: ${(aiAnalysis.cons)`);
+  factors.push(`AI analysis: ${(aiAnalysis.confidence || 0).toFixed(2)} confidence + keyword match bonus (${aiScore.toFixed(1)}/35 points)`);
 
   // Factor 5: Task-evidence alignment (0-15 points)
-  let al
+  let alignmentScore = 0;
   
   // Check if evidence types match task requirements
-  if (taskDescription.toLowerCase().includes('screenshot') && 
-  if (taskDescription.toLowerCase().includes('code') && hasCode) are += 5;
-e += 3;
-  
-  // Bonus for comprs
-  if (taskComplexity === 'complex' || taskComplexity === 'advanced') {
-
+  if (taskDescription.toLowerCase().includes('screenshot') && hasImages) {
+    alignmentScore += 5;
+  }
+  if (taskDescription.toLowerCase().includes('code') && hasCode) {
+    alignmentScore += 5;
+  }
+  if (taskDescription.toLowerCase().includes('document') && hasDocuments) {
+    alignmentScore += 3;
   }
   
-re, 15);
+  // Bonus for comprehensive evidence on complex tasks
+  if (taskComplexity === 'complex' || taskComplexity === 'advanced') {
+    if (uniqueTypes >= 2) alignmentScore += 2;
+  }
+  
+  alignmentScore = Math.min(alignmentScore, 15);
   score += alignmentScore;
-  factors.push(`Task alignment: evidence `);
+  factors.push(`Task alignment: evidence matches requirements (${alignmentScore}/15 points)`);
 
   // Apply AI agreement requirement
-  const threshold = parseFloat(process.env. || 70;
+  const threshold = parseFloat(process.env.VERIFICATION_CONFIDENCE_THRESHOLD) || 70;
 
-  const aiAgreement = esult;
+  const aiAgreement = aiAnalysis.completed || aiAnalysis.result;
+  const scoreThresholdMet = score >= threshold;
   const passed = scoreThresholdMet && aiAgreement;
 
   // Risk assessment
@@ -268,23 +274,77 @@ re, 15);
   if (!aiAgreement) riskFactors.push('AI analysis indicates task not completed');
   if (evidenceCount < 1) riskFactors.push('No evidence provided');
   if (totalSize < 1000) riskFactors.push('Evidence files too small');
-
+  if (aiAnalysis.confidence < 0.5) riskFactors.push('Low AI confidence score');
 
   return {
     total_score: Math.round(score),
     max_score: maxScore,
-    percentage: Math.round((score / m,
+    percentage: Math.round((score / maxScore) * 100),
     threshold: threshold,
     passed,
-ors,
-    ai_agreement: ament,
+    factors,
+    ai_agreement: aiAgreement,
     task_complexity: taskComplexity,
     keyword_count: taskKeywords.length,
     risk_factors: riskFactors,
-    final_decision: passed ? 'TASK_COMPLETED' : 'TASK_INCOMPLTE',
-    confidence_level: score >= 85 ? 'HIGH' : score >= 70 '
-;
-} } DIUM' : 'LOW? 'MEEiAgree    factcore) * 100)axSe score'); confidenc('Low AIactors.push.5) riskFdence < 0alysis.confif (aiAn  iis.rnalysiAted || alysis.compleaiAnahold;re >= thresdMet = scoresholeTh const scor HOLD)RESE_THCORRIFICATION_SVE/15 points)tScore}(${alignmenquirements matches realignmentScoMath.min(ore = entSc  alignmore += 2;mentSc2) alignueTypes >= if (uniq    lex tasknce on compsive evideehenor alignmentScuments)') && hasDococumentdes('dncluowerCase().ioLption.tkDescrif (tas  ignmentScoli+= 5;re ignmentScos) alasImagehore = 0;tScignmenpoint}/35 1)d(xere.toFiSco (${aiingord matchdence + keywd(2)} confiixe.toFdence || 0)fionus, 35);+ keywordBseAiScore .min(ba_match_scorrd.keywolysis (aiAna) * dence || 0alysis.confiore = (aiAnScst baseAinints)`);(1)}/12 poe.toFixed${sizeScor bytes (nd(avgSize)}h.rou += sizeScorcore2000000) < izevgS a0 &&0010(avgSize >  if rgot too lao small, nzes (not toage file sile averonabfor reas  // Bonus   
+    final_decision: passed ? 'TASK_COMPLETED' : 'TASK_INCOMPLETE',
+    confidence_level: score >= 85 ? 'HIGH' : score >= 70 ? 'MEDIUM' : 'LOW'
+  };
+}
+
+/**
+ * Download and analyze IPFS content for evidence validation
+ * @param {string} ipfsCid - IPFS content identifier
+ * @param {string} filename - Original filename for context
+ * @returns {Object} Content analysis result
+ */
+async function analyzeIPFSContent(ipfsCid, filename) {
+  try {
+    const response = await fetch(`https://${ipfsCid}.ipfs.w3s.link/${filename}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch IPFS content: ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type') || 'unknown';
+    const contentSize = parseInt(response.headers.get('content-length') || '0');
+    
+    let contentAnalysis = {
+      accessible: true,
+      content_type: contentType,
+      size: contentSize,
+      analysis_notes: []
+    };
+
+    // Analyze based on content type
+    if (contentType.startsWith('image/')) {
+      contentAnalysis.analysis_notes.push('Image file successfully accessible on IPFS');
+      contentAnalysis.analysis_notes.push(`Image format: ${contentType}`);
+      if (contentSize > 100000) {
+        contentAnalysis.analysis_notes.push('High-quality image with substantial file size');
+      }
+    } else if (contentType.startsWith('text/') || contentType.includes('json')) {
+      const textContent = await response.text();
+      contentAnalysis.text_length = textContent.length;
+      contentAnalysis.analysis_notes.push(`Text content with ${textContent.length} characters`);
+      
+      // Basic code detection
+      if (textContent.includes('function') || textContent.includes('class') || textContent.includes('import')) {
+        contentAnalysis.analysis_notes.push('Contains code-like content');
+      }
+    } else if (contentType === 'application/pdf') {
+      contentAnalysis.analysis_notes.push('PDF document accessible on IPFS');
+    }
+
+    return contentAnalysis;
+  } catch (error) {
+    console.warn(`Failed to analyze IPFS content ${ipfsCid}:`, error.message);
+    return {
+      accessible: false,
+      error: error.message,
+      analysis_notes: ['Failed to access content on IPFS']
+    };
+  }
+}
 
 /**
  * Analyze task completion using AWS Bedrock AI with enhanced evidence processing
@@ -298,6 +358,23 @@ async function analyzeTaskCompletion(taskDescription, evidence) {
     
     // Process evidence files for better AI understanding
     const processedEvidence = await processEvidenceFiles(evidence);
+    
+    // Analyze IPFS content accessibility for evidence with IPFS URLs
+    for (const item of processedEvidence) {
+      if (item.ipfs_url && item.ipfs_url.includes('.ipfs.w3s.link')) {
+        try {
+          const cidMatch = item.ipfs_url.match(/https:\/\/([^.]+)\.ipfs\.w3s\.link\/(.+)/);
+          if (cidMatch) {
+            const [, cid, filename] = cidMatch;
+            const ipfsAnalysis = await analyzeIPFSContent(cid, filename);
+            item.ipfs_analysis = ipfsAnalysis;
+          }
+        } catch (error) {
+          console.warn('IPFS analysis failed:', error.message);
+          item.ipfs_analysis = { accessible: false, error: error.message };
+        }
+      }
+    }
     
     // Prepare detailed evidence summary for AI analysis
     const evidenceSummary = processedEvidence.map(item => ({
@@ -514,8 +591,18 @@ router.post('/verify', async (req, res) => {
     const evidenceData = JSON.stringify(evidence.sort((a, b) => (a.hash || '').localeCompare(b.hash || '')));
     const evidenceHash = generateEvidenceHash(evidenceData);
 
-    // Perform AI analysis
-    const aiAnalysis = await analyzeTaskCompletion(task_description, evidence);
+    // Perform AI analysis (with demo mode support)
+    const aiAnalysis = process.env.MOCK_AI_RESPONSES === 'true' 
+      ? {
+          success: true,
+          result: true,
+          confidence: 0.85 + Math.random() * 0.1,
+          explanation: 'Demo mode: Task appears to be completed based on evidence analysis',
+          evidence_analysis: 'Demo mode: Evidence files processed successfully',
+          model_used: 'demo-mode-mock',
+          evidence_processed: evidence.length
+        }
+      : await analyzeTaskCompletion(task_description, evidence);
     
     // Apply confidence threshold
     const confidenceThreshold = parseFloat(process.env.VERIFICATION_CONFIDENCE_THRESHOLD) || 0.8;

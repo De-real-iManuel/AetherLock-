@@ -90,7 +90,7 @@ router.post('/upload', upload.array('evidence', 10), async (req, res) => {
     console.log(`📁 Uploading ${files.length} evidence files for escrow: ${escrow_id}`);
 
     const client = getWeb3StorageClient();
-    if (!client) {
+    if (!client && process.env.MOCK_IPFS_UPLOADS !== 'true') {
       return res.status(500).json({
         success: false,
         error: {
@@ -137,14 +137,19 @@ router.post('/upload', upload.array('evidence', 10), async (req, res) => {
       });
     }
 
-    // Upload to IPFS via Web3.Storage
-    console.log('📤 Uploading files to IPFS...');
-    const cid = await client.put(web3Files, {
-      name: `aetherlock-evidence-${escrow_id}`,
-      maxRetries: 3
-    });
-
-    console.log(`✅ Files uploaded to IPFS with CID: ${cid}`);
+    // Upload to IPFS via Web3.Storage (or mock for demo)
+    let cid;
+    if (process.env.MOCK_IPFS_UPLOADS === 'true') {
+      cid = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      console.log(`📤 Demo mode: Mocking IPFS upload with CID: ${cid}`);
+    } else {
+      console.log('📤 Uploading files to IPFS...');
+      cid = await client.put(web3Files, {
+        name: `aetherlock-evidence-${escrow_id}`,
+        maxRetries: 3
+      });
+      console.log(`✅ Files uploaded to IPFS with CID: ${cid}`);
+    }
 
     // Generate combined evidence hash for all files
     const combinedData = evidenceItems.map(item => item.hash).sort().join('');

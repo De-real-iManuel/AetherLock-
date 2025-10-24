@@ -1,0 +1,179 @@
+{
+  "version": "0.1.0",
+  "name": "aetherlock_escrow",
+  "instructions": [
+    {
+      "name": "initializeConfig",
+      "accounts": [
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "adminPubkeys", "type": { "vec": "publicKey" } }
+      ]
+    },
+    {
+      "name": "initializeEscrow",
+      "accounts": [
+        { "name": "buyer", "isMut": true, "isSigner": true },
+        { "name": "escrow", "isMut": true, "isSigner": false },
+        { "name": "tokenMint", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "escrowId", "type": { "array": ["u8", 32] } },
+        { "name": "seller", "type": "publicKey" },
+        { "name": "amount", "type": "u64" },
+        { "name": "expiry", "type": "i64" },
+        { "name": "metadataHash", "type": { "array": ["u8", 32] } },
+        { "name": "aiAgentPubkey", "type": "publicKey" }
+      ]
+    },
+    {
+      "name": "depositFunds",
+      "accounts": [
+        { "name": "buyer", "isMut": true, "isSigner": true },
+        { "name": "escrow", "isMut": true, "isSigner": false },
+        { "name": "escrowVault", "isMut": true, "isSigner": false },
+        { "name": "buyerTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "submitVerification",
+      "accounts": [
+        { "name": "escrow", "isMut": true, "isSigner": false },
+        { "name": "aiAgent", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "result", "type": "bool" },
+        { "name": "evidenceHash", "type": { "array": ["u8", 32] } },
+        { "name": "timestamp", "type": "i64" },
+        { "name": "signature", "type": { "array": ["u8", 64] } }
+      ]
+    },
+    {
+      "name": "releaseFunds",
+      "accounts": [
+        { "name": "buyer", "isMut": true, "isSigner": true },
+        { "name": "escrow", "isMut": true, "isSigner": false },
+        { "name": "escrowVault", "isMut": true, "isSigner": false },
+        { "name": "sellerTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "protocolTreasury", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "refundBuyer",
+      "accounts": [
+        { "name": "buyer", "isMut": true, "isSigner": true },
+        { "name": "escrow", "isMut": true, "isSigner": false },
+        { "name": "escrowVault", "isMut": true, "isSigner": false },
+        { "name": "buyerTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "raiseDispute",
+      "accounts": [
+        { "name": "participant", "isMut": false, "isSigner": true },
+        { "name": "escrow", "isMut": true, "isSigner": false }
+      ],
+      "args": [
+        { "name": "reasonHash", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "resolveDispute",
+      "accounts": [
+        { "name": "admin", "isMut": false, "isSigner": true },
+        { "name": "escrow", "isMut": true, "isSigner": false },
+        { "name": "config", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "outcome", "type": { "defined": "DisputeOutcome" } }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "EscrowAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "escrowId", "type": { "array": ["u8", 32] } },
+          { "name": "buyer", "type": "publicKey" },
+          { "name": "seller", "type": "publicKey" },
+          { "name": "tokenMint", "type": "publicKey" },
+          { "name": "amount", "type": "u64" },
+          { "name": "feeAmount", "type": "u64" },
+          { "name": "status", "type": { "defined": "EscrowStatus" } },
+          { "name": "expiry", "type": "i64" },
+          { "name": "metadataHash", "type": { "array": ["u8", 32] } },
+          { "name": "verificationResult", "type": { "option": "bool" } },
+          { "name": "evidenceHash", "type": { "option": { "array": ["u8", 32] } } },
+          { "name": "disputeRaised", "type": "bool" },
+          { "name": "disputeDeadline", "type": { "option": "i64" } },
+          { "name": "aiAgentPubkey", "type": "publicKey" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "ProtocolConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "publicKey" },
+          { "name": "adminPubkeys", "type": { "vec": "publicKey" } },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "EscrowStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Created" },
+          { "name": "Funded" },
+          { "name": "Verified" },
+          { "name": "Disputed" },
+          { "name": "Released" },
+          { "name": "Refunded" }
+        ]
+      }
+    },
+    {
+      "name": "DisputeOutcome",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "FavorBuyer" },
+          { "name": "FavorSeller" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidEscrowState", "msg": "Invalid escrow state for this operation" },
+    { "code": 6001, "name": "VerificationFailed", "msg": "Verification failed" },
+    { "code": 6002, "name": "DisputeActive", "msg": "Dispute is active" },
+    { "code": 6003, "name": "DisputeAlreadyRaised", "msg": "Dispute already raised" },
+    { "code": 6004, "name": "RefundNotAllowed", "msg": "Refund not allowed" },
+    { "code": 6005, "name": "MathOverflow", "msg": "Math overflow" },
+    { "code": 6006, "name": "UnauthorizedAdmin", "msg": "Unauthorized admin" },
+    { "code": 6007, "name": "TooManyAdmins", "msg": "Too many admins" },
+    { "code": 6008, "name": "AdminAlreadyExists", "msg": "Admin already exists" },
+    { "code": 6009, "name": "UnauthorizedAIAgent", "msg": "Unauthorized AI agent" },
+    { "code": 6010, "name": "InvalidSignature", "msg": "Invalid signature" },
+    { "code": 6011, "name": "TimestampTooOld", "msg": "Timestamp too old" }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "aetherlock-protocol",
+  "version": "1.0.0",
+  "description": "AI-driven, trustless, and agentic escrow & verification protocol",
+  "type": "module",
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../solana-program && npm install",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:contracts": "cd solana-program && anchor build",
+    "build:all": "npm run build:contracts && npm run build:backend && npm run build:frontend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "test:contracts": "cd solana-program && anchor test",
+    "test:all": "npm run test:contracts && npm run test:backend && npm run test:frontend",
+    "deploy:contracts:devnet": "cd solana-program && anchor deploy --provider.cluster devnet",
+    "deploy:contracts:mainnet": "cd solana-program && anchor deploy --provider.cluster mainnet-beta",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run preview",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:all": "npm run lint:frontend && npm run lint:backend",
+    "clean": "rm -rf frontend/dist backend/dist solana-program/target",
+    "setup:env": "cp .env.example .env && cp frontend/.env.example frontend/.env && cp backend/.env.example backend/.env",
+    "health:check": "curl -f http://localhost:3001/health && curl -f http://localhost:5173",
+    "demo:reset": "npm run clean && npm run install:all && npm run build:all",
+    "docs:serve": "npx http-server . -p 8080 -o",
+    "security:audit": "npm audit && cd frontend && npm audit && cd ../backend && npm audit"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "blockchain",
+    "escrow",
+    "ai",
+    "solana",
+    "zetachain",
+    "defi",
+    "cross-chain",
+    "verification"
+  ],
+  "author": "AetherLock Protocol Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aetherlock/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aetherlock/protocol/issues"
+  },
+  "homepage": "https://aetherlock.protocol"
+}

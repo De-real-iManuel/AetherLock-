@@ -1,85 +1,93 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const multer = require('multer');
+const dotenv = require('dotenv');
+const AIVerificationService = require('./services/aiVerification.js');
 
-// Import routes
-import verificationRoutes from './routes/verification.js';
-import keyRoutes from './routes/keys.js';
-import evidenceRoutes from './routes/evidence.js';
-
-// Load environment variables
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Security middleware
+// Initialize AI service
+const aiService = new AIVerificationService();
+
+// Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true
-}));
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    service: 'AetherLock AI Agent'
-  });
+// Routes
+app.get('/api/keys/public', (req, res) => {
+  try {
+    const publicKey = aiService.getPublicKey();
+    res.json({ publicKey });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// API routes
-app.use('/api/verification', verificationRoutes);
-app.use('/api/keys', keyRoutes);
-app.use('/api/evidence', evidenceRoutes);
+app.post('/api/verification/process', upload.array('evidence'), async (req, res) => {
+  try {
+    const { escrowId, taskDescription } = req.body;
+    const evidenceFiles = req.files || [];
+
+    if (!escrowId || !taskDescription) {
+      return res.status(400).json({ error: 'Missing escrowId or taskDescription' });
+    }
+
+    const result = await aiService.processVerification(
+      escrowId,
+      taskDescription,
+      evidenceFiles
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/evidence/upload', upload.array('files'), async (req, res) => {
+  try {
+    const files = req.files || [];
+    const result = await aiService.uploadEvidence(files);
+    res.json(result);
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    services: {
+      ai: 'ready',
+      ipfs: 'ready'
+    }
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
-  const status = err.status || 500;
-  const message = process.env.NODE_ENV === 'production' 
-    ? 'Internal server error' 
-    : err.message;
-
-  res.status(status).json({
-    error: {
-      message,
-      status,
-      timestamp: new Date().toISOString()
-    }
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: {
-      message: 'Endpoint not found',
-      status: 404,
-      path: req.originalUrl
-    }
-  });
-});
-
-// Start server
 app.listen(PORT, () => {
-  console.log(`🚀 AetherLock AI Agent running on port ${PORT}`);
+  console.log(`🤖 AetherLock AI Agent running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔑 Public key endpoint: http://localhost:${PORT}/api/keys/public`);
-  console.log(`🤖 Verification endpoint: http://localhost:${PORT}/api/verification/verify`);
+  console.log(`🔑 Public key: http://localhost:${PORT}/api/keys/public`);
 });
 
-export default app;
+module.exports = app;
