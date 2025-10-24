@@ -1,9 +1,18 @@
 import * as React from "react"
+import { motion } from "framer-motion"
+const MotionButton = motion.button
 import { cn } from "../../lib/utils"
 
-const Button = React.forwardRef(({ className, variant = "default", size = "default", ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant = "default", size = "default", whileHover, whileTap, ...props }, ref) => {
+  // Default motion props can be overridden by passing `whileHover` / `whileTap`
+  const defaultWhileHover = whileHover || { scale: 1.03, y: -2 }
+  const defaultWhileTap = whileTap || { scale: 0.98 }
+
   return (
-    <button
+    <MotionButton
+      whileHover={defaultWhileHover}
+      whileTap={defaultWhileTap}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className={cn(
         "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         {

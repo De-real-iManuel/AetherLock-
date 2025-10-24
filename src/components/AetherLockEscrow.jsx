@@ -2,24 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Lock, Unlock, Shield, Database, Wallet } from 'lucide-react';
+import { Lock, Unlock, Shield, Database } from 'lucide-react';
 import { analyzeEscrowRisk, resolveDispute } from '../services/aws';
 import { logEscrowTransaction, queryEscrowHistory } from '../services/qldb';
-import { connectWallet, getWalletBalance, createEscrowAccount } from '../services/solana';
+import { createEscrowAccount } from '../services/solana';
+import kycValidationService from '../services/kycValidation';
+import KycVerification from './KycVerification';
+import KycStatusIndicator from './KycStatusIndicator';
+import WalletConnectionButton from './WalletConnectionButton';
+import { useWalletConnection } from '../hooks/useWalletConnection';
 
 const AetherLockEscrow = () => {
-  // Check for wallet on component mount
-  useEffect(() => {
-    const checkWallet = async () => {
-      if (window.solana?.isPhantom && window.solana.isConnected) {
-        const publicKey = window.solana.publicKey.toString();
-        setWallet({ publicKey, connection: window.solana });
-        const balance = await getWalletBalance(publicKey);
-        setWalletBalance(balance);
-      }
-    };
-    checkWallet();
-  }, []);
+  const {
+    connected,
+    publicKey,
+    balance,
+    connectionState
+  } = useWalletConnection();
+
   const [buyerOffer, setBuyerOffer] = useState('');
   const [sellerHandle, setSellerHandle] = useState('');
   const [status, setStatus] = useState(null);
@@ -27,9 +27,9 @@ const AetherLockEscrow = () => {
   const [errors, setErrors] = useState({});
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [qldbRecord, setQldbRecord] = useState(null);
-  const [wallet, setWallet] = useState(null);
-  const [walletBalance, setWalletBalance] = useState(0);
   const [solanaTransaction, setSolanaTransaction] = useState(null);
+  const [kycStatus, setKycStatus] = useState(null);
+  const [showKycModal, setShowKycModal] = useState(false);
 
   const generateRandomHash = (length = 64) => {
     const chars = '0123456789abcdef';
@@ -40,16 +40,7 @@ const AetherLockEscrow = () => {
     return result;
   };
 
-  const handleConnectWallet = async () => {
-    const result = await connectWallet();
-    if (result.success) {
-      setWallet({ publicKey: result.publicKey, connection: result.wallet });
-      const balance = await getWalletBalance(result.publicKey);
-      setWalletBalance(balance);
-    } else {
-      setErrors({ wallet: result.error });
-    }
-  };
+
 
   const generateSolanaTransactionId = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -63,8 +54,12 @@ const AetherLockEscrow = () => {
   const validateInputs = () => {
     const newErrors = {};
     
-    if (!wallet) {
+    if (!connected || !publicKey) {
       newErrors.wallet = 'Please connect your Solana wallet first';
+    }
+    
+    if (!kycStatus?.isVerified) {
+      newErrors.kyc = 'KYC verification required to create escrow';
     }
     
     const offerNum = parseFloat(buyerOffer);
@@ -72,8 +67,8 @@ const AetherLockEscrow = () => {
       newErrors.buyerOffer = 'Offer must be a number greater than 0';
     }
     
-    if (wallet && offerNum > walletBalance) {
-      newErrors.buyerOffer = `Insufficient balance. You have ${walletBalance.toFixed(4)} SOL`;
+    if (connected && offerNum > balance) {
+      newErrors.buyerOffer = `Insufficient balance. You have ${balance.toFixed(4)} SOL`;
     }
     
     if (!sellerHandle || !sellerHandle.startsWith('@') || sellerHandle.length < 3) {
@@ -84,12 +79,22 @@ const AetherLockEscrow = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleKycStatusChange = (status) => {
+    setKycStatus(status);
+  };
+
   const startEscrow = async () => {
     if (!validateInputs()) return;
     
     setIsLoading(true);
     
     try {
+      // Step 0: Verify KYC eligibility
+      const kycEligibility = await kycValidationService.canCreateEscrow(publicKey.toString());
+      if (!kycEligibility.canCreate) {
+        throw new Error(kycEligibility.reason);
+      }
+
       // Step 1: AI Risk Analysis with AWS Bedrock
       const riskAnalysis = await analyzeEscrowRisk({
         buyerOffer,
@@ -101,7 +106,7 @@ const AetherLockEscrow = () => {
       // Step 2: Create real Solana escrow transaction
       const sellerPublicKey = 'SellerWalletAddressHere'; // In production, resolve from handle
       const escrowResult = await createEscrowAccount(
-        wallet.connection,
+        publicKey,
         sellerPublicKey,
         parseFloat(buyerOffer)
       );
@@ -115,7 +120,7 @@ const AetherLockEscrow = () => {
       // Step 3: Log to QLDB for immutable record
       const transactionData = {
         transactionId: `escrow_${Date.now()}`,
-        buyerAddress: wallet.publicKey,
+        buyerAddress: publicKey.toString(),
         sellerAddress: sellerPublicKey,
         amount: parseFloat(buyerOffer),
         status: 'active',
@@ -124,7 +129,8 @@ const AetherLockEscrow = () => {
         riskScore: riskAnalysis.riskScore,
         buyerOffer,
         sellerHandle,
-        aiAnalysis: riskAnalysis.analysis
+        aiAnalysis: riskAnalysis.analysis,
+        kycStatus: kycEligibility.kycStatus
       };
       
       const qldbResult = await logEscrowTransaction(transactionData);
@@ -140,9 +146,7 @@ const AetherLockEscrow = () => {
         amount: parseFloat(buyerOffer)
       });
       
-      // Update wallet balance
-      const newBalance = await getWalletBalance(wallet.publicKey);
-      setWalletBalance(newBalance);
+      // Balance will be updated automatically by the hook
       
     } catch (error) {
       console.error('Escrow creation failed:', error);
@@ -161,29 +165,34 @@ const AetherLockEscrow = () => {
               <Lock className="h-6 w-6" />
               AetherLock Escrow
             </div>
-            {wallet ? (
-              <div className="text-sm font-normal">
-                <div className="text-green-400 flex items-center gap-1">
-                  <Wallet className="h-4 w-4" />
-                  Connected
-                </div>
-                <div className="text-slate-400 text-xs">
-                  {walletBalance.toFixed(4)} SOL
-                </div>
-              </div>
-            ) : (
-              <Button 
-                onClick={handleConnectWallet}
-                size="sm"
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                <Wallet className="h-4 w-4 mr-1" />
-                Connect Wallet
-              </Button>
-            )}
+            <WalletConnectionButton />
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* KYC Status Indicator */}
+          <KycStatusIndicator kycStatus={kycStatus} />
+          
+          {/* KYC Verification Modal */}
+          {showKycModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full mx-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white">KYC Verification</h3>
+                  <button
+                    onClick={() => setShowKycModal(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <KycVerification 
+                  walletAddress={publicKey?.toString()} 
+                  onKycStatusChange={handleKycStatusChange}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left: form */}
             <div>
@@ -198,9 +207,9 @@ const AetherLockEscrow = () => {
               type="number"
               step="0.001"
             />
-            {wallet && (
+            {connected && (
               <p className="text-slate-400 text-xs mt-1">
-                Available: {walletBalance.toFixed(4)} SOL
+                Available: {balance.toFixed(4)} SOL
               </p>
             )}
             {errors.buyerOffer && (
@@ -230,13 +239,39 @@ const AetherLockEscrow = () => {
             </div>
           )}
 
+          {errors.kyc && (
+            <div className="p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
+              <p className="text-yellow-400 text-sm">{errors.kyc}</p>
+              <button
+                onClick={() => setShowKycModal(true)}
+                className="text-yellow-300 hover:text-yellow-200 text-sm underline mt-1"
+              >
+                Complete KYC Verification →
+              </button>
+            </div>
+          )}
+
           <Button
             onClick={startEscrow}
-            disabled={isLoading || !wallet}
+            disabled={isLoading || !connected || !kycStatus?.isVerified}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
           >
-            {isLoading ? 'Creating Escrow...' : !wallet ? 'Connect Wallet First' : 'Start Escrow'}
+            {isLoading ? 'Creating Escrow...' : 
+             !connected ? 'Connect Wallet First' : 
+             !kycStatus?.isVerified ? 'Complete KYC First' : 
+             'Start Escrow'}
           </Button>
+
+          {!kycStatus?.isVerified && connected && (
+            <Button
+              onClick={() => setShowKycModal(true)}
+              variant="outline"
+              className="w-full border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Complete KYC Verification
+            </Button>
+          )}
           
           {aiAnalysis && (
             <div className="mt-4 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
