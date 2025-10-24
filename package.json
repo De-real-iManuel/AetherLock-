@@ -32,6 +32,7 @@
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/node": "^24.9.1",
     "@zetachain/toolkit": "^12.0.0",
+    "@zkmelabs/widget": "^0.3.6",
     "aws-sdk": "^2.1692.0",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",

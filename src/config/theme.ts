@@ -87,7 +87,12 @@ export const themeConfig: ThemeConfig = {
       base: '1rem',
       lg: '1.125rem',
       xl: '1.25rem',
-   nimations: {
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+    },
+  },
+  animations: {
     duration: {
       fast: '150ms',
       normal: '300ms',

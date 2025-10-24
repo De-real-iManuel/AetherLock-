@@ -1,14 +1,28 @@
-import React from 'react'
-import AetherLockEscrow from './components/AetherLockEscrow'
-import WalletProvider from './components/WalletProvider'
+import * as React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { AppProviders } from './providers/AppProviders'
+import { LandingPage } from './components/landing/landing-page'
+import { Dashboard } from './components/dashboard/dashboard'
+import { NotificationContainer } from './components/ui/notification'
+import { useThemeStore } from './store/themeStore'
 
-const App: React.FC = () => {
+function App() {
+  const { isDark } = useThemeStore()
+  
+  React.useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark)
+  }, [isDark])
+
   return (
-    <WalletProvider>
-      <div className="bg-slate-900 text-white min-h-screen">
-        <AetherLockEscrow />
+    <AppProviders>
+      <div className="min-h-screen bg-black text-white">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+        <NotificationContainer />
       </div>
-    </WalletProvider>
+    </AppProviders>
   )
 }
 

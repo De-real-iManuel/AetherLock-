@@ -4,8 +4,8 @@ export const APP_VERSION = '2.0.0';
 export const APP_DESCRIPTION = 'Trustless AI Escrow for Web3 Transactions';
 
 // API endpoints
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-export const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:3001';
+export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:3001';
+export const WEBSOCKET_URL = (import.meta.env?.VITE_WEBSOCKET_URL as string) || 'ws://localhost:3001';
 
 // Blockchain networks
 export const SUPPORTED_NETWORKS = {
@@ -63,5 +63,5 @@ export const ANIMATION_VARIANTS = {
 
 export type NetworkType = typeof SUPPORTED_NETWORKS[keyof typeof SUPPORTED_NETWORKS];
 export type WalletProviderType = typeof WALLET_PROVIDERS[keyof typeof WALLET_PROVIDERS];
-export type EscATUS];N_STVERIFICATIOpeof AI_eyof tyION_STATUS[k_VERIFICAT= typeof AItusType tionStae AIVerificaxport typSTATUS];
-eROW_ ESCeof typSTATUS[keyofESCROW_of  typetusType =tarowS
+export type EscrowStatusType = typeof ESCROW_STATUS[keyof typeof ESCROW_STATUS];
+export type AIVerificationStatusType = typeof AI_VERIFICATION_STATUS[keyof typeof AI_VERIFICATION_STATUS];
