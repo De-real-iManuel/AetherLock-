@@ -31,7 +31,7 @@ function extractTaskKeywords(taskDescription) {
   const techKeywords = [
     'react', 'vue', 'angular', 'javascript', 'typescript', 'python', 'java', 'rust', 'solana',
     'smart contract', 'blockchain', 'api', 'database', 'frontend', 'backend', 'ui', 'ux',
-    'component', 'function', 'class', 'method', 'test', 'deploy', 'build', 'install',
+    'component', 'function', 'class', 'method', 'test', 'deploy', 'build', 'install', 'domain',
     'authentication', 'authorization', 'login', 'signup', 'form', 'validation', 'responsive'
   ];
   

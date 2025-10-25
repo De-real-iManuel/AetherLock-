@@ -3,14 +3,14 @@ import AWS from 'aws-sdk';
 // Initialize QLDB client
 const qldb = new AWS.QLDB({
   region: 'us-east-1',
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY,
 });
 
 const qldbSession = new AWS.QLDBSession({
   region: 'us-east-1',
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY,
 });
 
 export const logEscrowTransaction = async (transactionData) => {

@@ -78,7 +78,7 @@ Market Opportunity: $2.8B+ escrow market ready for disruption
 ┌─ Blockchain Ecosystem ───────────────────┐
 │ Solana Escrow Contract                    │
 │ Sui Escrow Module                         │
-│ TON Escrow Contract                       │
+│ TON Escrow Contract. etc                      │
 └─────────────────────────────────────────┘
            ↕️ AI Verification
 ┌─ AWS AI & Oracle Layer ──────────────────┐
@@ -185,7 +185,7 @@ Performance Metrics:
 🎬 Live Demo: Complete User Journey
 
 Demo Flow:
-1. 🔗 Wallet Connection (Phantom/Solflare)
+1. 🔗 Wallet Connection (Phantom,Solflare,Slush,Tonkeeper,metamask)
 2. 🆔 zkKYC Verification on ZetaChain  
 3. 💰 Cross-Chain Escrow Creation
 4. 📁 Evidence Upload to IPFS
@@ -279,7 +279,7 @@ Competitive Advantages:
 │ Verification    │ Manual      │ AI-Powered  │
 │ Chains          │ Single      │ Multi-Chain │
 │ UI Performance  │ Basic       │ 60fps       │
-│ Trust Model     │ Centralized │ Cryptographic│
+│ Trust Model     │ Centralized │Cryptographic│
 │ Resolution Time │ Days        │ Seconds     │
 │ Arbitration     │ Human       │ AI + Dispute│
 └─────────────────┴─────────────┴─────────────┘
@@ -352,7 +352,7 @@ Try the Live Demo:
 📱 Mobile-optimized with full functionality
 
 Explore the Code:
-📂 GitHub: https://github.com/aetherlock/protocol
+📂 GitHub: https://github.com/aetherlock-/
 📚 Docs: https://docs.aetherlock.io
 🎥 Demo Video: https://youtu.be/aetherlock-demo
 
