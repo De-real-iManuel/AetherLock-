@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  FREELANCER
+}
+
+enum EscrowStatus {
+  PENDING
+  VERIFIED
+  RELEASED
+  DISPUTED
+  CANCELLED
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+model User {
+  id              String   @id @default(cuid())
+  walletAddress   String   @unique
+  role            UserRole
+  zkMeProofHash   String?
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  buyerEscrows    Escrow[] @relation("BuyerEscrows")
+  sellerEscrows   Escrow[] @relation("SellerEscrows")
+  
+  @@map("users")
+}
+
+model Escrow {
+  id                  String        @id @default(cuid())
+  buyerId             String
+  sellerId            String
+  amount              Decimal       @db.Decimal(18, 9)
+  status              EscrowStatus  @default(PENDING)
+  aiVerificationHash  String?
+  ipfsHash            String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  
+  // Relations
+  buyer               User          @relation("BuyerEscrows", fields: [buyerId], references: [id])
+  seller              User          @relation("SellerEscrows", fields: [sellerId], references: [id])
+  transactions        Transaction[]
+  
+  @@map("escrows")
+}
+
+model Transaction {
+  id        String            @id @default(cuid())
+  escrowId  String
+  txHash    String            @unique
+  status    TransactionStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  
+  // Relations
+  escrow    Escrow            @relation(fields: [escrowId], references: [id])
+  
+  @@map("transactions")
+}

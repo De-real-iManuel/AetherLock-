@@ -3,9 +3,13 @@ const cors = require('cors');
 const helmet = require('helmet');
 const multer = require('multer');
 const dotenv = require('dotenv');
+const { PrismaClient } = require('@prisma/client');
 const AIVerificationService = require('./services/aiVerification.js');
 
 dotenv.config();
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -64,15 +68,32 @@ app.post('/api/evidence/upload', upload.array('files'), async (req, res) => {
 });
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
-    timestamp: new Date().toISOString(),
-    services: {
-      ai: 'ready',
-      ipfs: 'ready'
-    }
-  });
+app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`;
+    
+    res.json({ 
+      status: 'healthy', 
+      timestamp: new Date().toISOString(),
+      services: {
+        ai: 'ready',
+        ipfs: 'ready',
+        database: 'connected'
+      }
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'unhealthy', 
+      timestamp: new Date().toISOString(),
+      services: {
+        ai: 'ready',
+        ipfs: 'ready',
+        database: 'disconnected'
+      },
+      error: error.message
+    });
+  }
 });
 
 // Error handling middleware
