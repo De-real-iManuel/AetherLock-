@@ -55,7 +55,8 @@ export const useWalletConnection = () => {
       const walletMap = {
         'phantom': 'Phantom',
         'solflare': 'Solflare',
-        'backpack': 'Backpack'
+        'backpack': 'Backpack',
+        'metamask': 'metamask'
       };
 
       const adapterName = walletMap[walletName] || walletName;
