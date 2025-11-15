@@ -147,7 +147,7 @@ export const Terms = () => {
                 AetherLock charges the following fees:
               </p>
               <ul className="list-disc list-inside space-y-2 mb-4 ml-4">
-                <li>Platform fee: 2-3% of transaction value</li>
+                <li>Platform fee: 10% of transaction value</li>
                 <li>Blockchain gas fees: Paid directly to the network</li>
                 <li>IPFS storage fees: Included in platform fee</li>
               </ul>
