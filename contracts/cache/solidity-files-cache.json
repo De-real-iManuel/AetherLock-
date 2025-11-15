@@ -1,0 +1,79 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/workspaces/AetherLock-/contracts/contracts/ChainlinkVerifier.sol": {
+      "lastModificationDate": 1763024483619,
+      "contentHash": "82a5fbc5028cc223f355e3170bc78bb9",
+      "sourceName": "contracts/ChainlinkVerifier.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ChainlinkVerifier"
+      ]
+    },
+    "/workspaces/AetherLock-/contracts/contracts/ZetaEscrowGateway.sol": {
+      "lastModificationDate": 1763024483619,
+      "contentHash": "daa75799ff309c88b27c6eea50e9c09b",
+      "sourceName": "contracts/ZetaEscrowGateway.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IGatewayZEVM",
+        "IUniversalContract",
+        "ZetaEscrowGateway"
+      ]
+    }
+  }
+}

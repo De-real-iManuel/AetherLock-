@@ -1,0 +1,1 @@
+understand project structure before writing codes remove any duplicate files 

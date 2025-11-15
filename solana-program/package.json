@@ -1,0 +1,25 @@
+{
+  "name": "aetherlock-escrow-tests",
+  "version": "1.0.0",
+  "description": "Tests for AetherLock Escrow Protocol",
+  "scripts": {
+    "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "0.32.1",
+    "@noble/ed25519": "^3.0.0",
+    "@solana/spl-token": "^0.1.8",
+    "@solana/web3.js": "^1.87.6",
+    "ed25519-hd-key": "^1.3.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.10.1",
+    "chai": "^4.3.10",
+    "mocha": "^11.7.5",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

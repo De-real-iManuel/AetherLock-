@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+  // Optimize for production with binary targets
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Connection pooling configuration
+  // Railway provides DATABASE_URL with connection pooling built-in
+  // directUrl is optional and only needed if using external poolers like PgBouncer
+}
+
+
+
+model User {
+  id                String         @id @default(cuid())
+  walletAddress     String         @unique
+  name              String?
+  role              String?
+  zkMeVerified      Boolean        @default(false)
+  zkMeSessionId     String?
+  zkMeProofHash     String?
+  zkMeLevel         Int?
+  trustScore        Int            @default(50)
+  skills            String?
+  completedJobs     Int            @default(0)
+  successRate       Float          @default(0)
+  totalEarned       Float          @default(0)
+  totalSpent        Float          @default(0)
+  avatar            String?
+  settings          String?        // JSON string for notification preferences and theme
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  // Relations
+  buyerEscrows      Escrow[]       @relation("BuyerEscrows")
+  sellerEscrows     Escrow[]       @relation("SellerEscrows")
+  submissions       Submission[]
+  disputes          Dispute[]
+  notifications     Notification[]
+  
+  @@index([walletAddress])
+  @@map("users")
+}
+
+model Escrow {
+  id                    String        @id @default(cuid())
+  escrowId              String        @unique
+  buyerId               String
+  sellerId              String?
+  amount                Float
+  currency              String        @default("SOL")
+  feeAmount             Float
+  status                String        @default("CREATED")
+  title                 String
+  description           String?
+  milestones            String?       // JSON string for milestone data
+  aiVerificationHash    String?
+  evidenceIpfsHash      String?
+  chainlinkRequestId    String?
+  verificationResult    Boolean?
+  disputeRaised         Boolean       @default(false)
+  sourceChain           String        @default("solana")
+  destinationChain      String?
+  deadline              DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  expiresAt             DateTime?
+  
+  // Relations
+  buyer                 User          @relation("BuyerEscrows", fields: [buyerId], references: [id])
+  seller                User?         @relation("SellerEscrows", fields: [sellerId], references: [id])
+  transactions          Transaction[]
+  submissions           Submission[]
+  disputes              Dispute[]
+  messages              Message[]
+  
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("escrows")
+}
+
+model Transaction {
+  id          String            @id @default(cuid())
+  escrowId    String
+  txHash      String            @unique
+  chain       String            @default("solana")
+  type        String
+  amount      Float?
+  status      String            @default("PENDING")
+  blockNumber Int?
+  createdAt   DateTime          @default(now())
+  
+  // Relations
+  escrow      Escrow            @relation(fields: [escrowId], references: [id])
+  
+  @@index([escrowId])
+  @@index([txHash])
+  @@map("transactions")
+}
+
+model Message {
+  id          String            @id @default(cuid())
+  escrowId    String
+  senderId    String
+  senderRole  String
+  content     String
+  read        Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  
+  // Relations
+  escrow      Escrow            @relation(fields: [escrowId], references: [id])
+  
+  @@index([escrowId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model Submission {
+  id                String            @id @default(cuid())
+  escrowId          String
+  freelancerAddress String
+  description       String
+  evidence          String?           // JSON string for evidence array
+  status            String            @default("pending")
+  aiVerification    String?           // JSON string for AI verification result
+  submittedAt       DateTime          @default(now())
+  
+  // Relations
+  escrow            Escrow            @relation(fields: [escrowId], references: [id])
+  user              User              @relation(fields: [freelancerAddress], references: [walletAddress])
+  
+  @@index([escrowId])
+  @@index([freelancerAddress])
+  @@index([status])
+  @@map("submissions")
+}
+
+model Dispute {
+  id                String            @id @default(cuid())
+  escrowId          String
+  initiatedBy       String            // 'client' or 'freelancer'
+  initiatorAddress  String
+  reason            String
+  evidence          String?           // JSON string for evidence array
+  status            String            @default("open")
+  resolution        String?
+  resolvedAt        DateTime?
+  deadline          DateTime
+  createdAt         DateTime          @default(now())
+  
+  // Relations
+  escrow            Escrow            @relation(fields: [escrowId], references: [id])
+  user              User              @relation(fields: [initiatorAddress], references: [walletAddress])
+  
+  @@index([escrowId])
+  @@index([initiatorAddress])
+  @@index([status])
+  @@map("disputes")
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  read        Boolean           @default(false)
+  actionUrl   String?
+  createdAt   DateTime          @default(now())
+  
+  // Relations
+  user        User              @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}

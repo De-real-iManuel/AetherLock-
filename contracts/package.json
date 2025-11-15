@@ -1,0 +1,18 @@
+{
+  "name": "aetherlock-contracts",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:zeta": "hardhat run scripts/deploy.js --network zetachain_testnet",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia"
+  },
+  "dependencies": {
+    "ethers": "^6.14.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.1.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  }
+}
