@@ -1,328 +1,322 @@
-# 🌌 AetherLock Universal Protocol
+# AetherLock: Omnichain Escrow with AI-Powered Risk Verification
 
-> **AI-driven, trustless, and agentic escrow & verification protocol**  
-> Combining **Blockchain**, **AI Agents**, **zkMe KYC**, **Chainlink Oracles**, and **ZetaChain Universal Connectivity** to power the next evolution of secure cross-chain P2P transactions.
+## 1. Project Overview
 
-## 🏆 ZetaChain Universal App Bounty
+AetherLock is a cross-chain escrow protocol enabling parties to exchange assets across Solana, Sui, TON, and Somnia with AI-powered Proof of Task verification (PoTv) ( and zkMe-based identity verification. Built on ZetaChain's Universal App framework, AetherLock serves as the omnichain orchestration layer, routing messages and assets between blockchain networks while leveraging off-chain AI to assess counterparty risk and Chainlink Functions for deterministic verification.
 
-This project implements a **Universal App** that seamlessly connects **Solana**, **Sui**, and **TON** ecosystems through ZetaChain's omnichain infrastructure with meaningful business logic including:
-
-- ✅ **onCall**: Cross-chain escrow initiation and verification completion
-- ✅ **onRevert**: Automatic refund handling for failed transactions  
-- ✅ **onAbort**: Transaction cleanup and error recovery
-- ✅ **Real zkMe KYC**: Live identity verification (no mockups)
-- ✅ **Chainlink Integration**: Price feeds and off-chain computation
-- ✅ **AI Verification**: AWS Bedrock-powered task validation
-- ✅ **Live MVP**: Deployed on testnet with full functionality
+The protocol is designed to be launched as a startup and was brought to build by ‘‘AMAZON TOOls(Q and KIRO IDE)’’ for hackathon judges to verify: seamless multi-chain integration, real identity verification via zkMe KYC, AI-driven risk assessment with cryptographic proof, and cross-chain message finality without custodial risk.
 
 ---
 
-## 🚀 Quick Start
+## 2. Quick Start
 
 ### Prerequisites
+- **Node.js** 18+
+- **Rust** 1.70+
+- **Anchor CLI** (`avm install latest`)
+- **Solana CLI** (configure with devnet: `solana config set --url https://api.devnet.solana.com`)
+- **Foundry** (for Solidity contracts)
+- **Git** & **Docker** (optional, for local IPFS)
+
+### Clone & Install
+
 ```bash
-# Required API Keys & Configurations
-ZKME_API_KEY=your_zkme_api_key
-ZKME_APP_ID=your_zkme_app_id
-ZETACHAIN_RPC_URL=https://zetachain-athens-evm.blockpi.network/v1/rpc/public
-CHAINLINK_FUNCTIONS_ROUTER=
-AWS_ACCESS_KEY_ID=your_aws_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret
+git clone https://github.com/aetherlock/aetherlock.git
+cd aetherlock
+npm install
 ```
 
-### 1. Smart Contracts (Solana)
+### Build Solana Program
+
 ```bash
-cd solana-program
+cd solana/programs/aetherlock
 anchor build
-anchor deploy --provider.cluster devnet
 ```
 
-### 2. Backend Services
+### Build & Deploy ZetaChain Contract
+
+```bash
+cd zeta-contracts
+npm install
+npx hardhat compile
+npx hardhat deploy --network zetachain-testnet
+```
+
+### Run Backend
+
 ```bash
 cd backend
-npm install
-npm start
-```
-
-### 3. Frontend Dashboard
-```bash
-cd frontend
-npm install
+cp .env.example .env
+# Edit .env with your keys and placeholders (see Section 14)
 npm run dev
 ```
 
----
+### Run Frontend
 
-## 🏗️ Universal Architecture
-
-### Cross-Chain Flow
-```
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   Solana    │◄──►│  ZetaChain   │◄──►│ Sui/TON     │
-│   Program   │    │   Gateway    │    │ Contracts   │
-└─────────────┘    └──────────────┘    └─────────────┘
-       │                   │                   │
-       ▼                   ▼                   ▼
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│ onCall()    │    │ Cross-chain  │    │ onRevert()  │
-│ onRevert()  │    │ Messaging    │    │ onAbort()   │
-│ onAbort()   │    │              │    │             │
-└─────────────┘    └──────────────┘    └─────────────┘
-```
-
-### Key Components
-
-#### 1. Universal Smart Contract Functions
-```rust
-// Solana Program - universal.rs
-pub fn on_call(ctx: Context<OnCall>, message: CrossChainMessage) -> Result<()>
-pub fn on_revert(ctx: Context<OnRevert>, revert_context: RevertContext) -> Result<()>  
-pub fn on_abort(ctx: Context<OnAbort>, abort_context: AbortContext) -> Result<()>
-```
-
-#### 2. zkMe KYC Integration
-```typescript
-// Real-time verification with zkMe API
-const zkmeService = new ZkmeService();
-await zkmeService.initializeVerification(userAddress, chain);
-```
-
-#### 3. Chainlink Oracle Integration
-```javascript
-// Price feeds and off-chain computation
-const chainlinkService = new ChainlinkService();
-const priceData = await chainlinkService.getPrice('SOL/USD', provider);
-```
-
-#### 4. ZetaChain Cross-Chain Messaging
-```javascript
-// Universal connectivity
-const zetaService = new ZetaChainService();
-await zetaService.initiateCrossChainEscrow(escrowData);
-```
-
----
-
-## 🎯 Core Features
-
-### 🔐 **zkMe KYC Verification**
-- **Real-time identity verification** (no mockups)
-- **Multi-chain support** (Solana, ZetaChain, Sui, TON)
-- **Zero-knowledge proofs** for privacy
-- **Webhook integration** for instant updates
-
-### 🤖 **AI-Powered Verification**
-- **AWS Bedrock integration** for intelligent task analysis
-- **Risk assessment** with confidence scoring
-- **Evidence processing** with IPFS storage
-- **Automated dispute resolution**
-
-### ⛓️ **Universal Cross-Chain**
-- **ZetaChain gateway** for omnichain connectivity
-- **Seamless asset transfers** between chains
-- **Unified user experience** across ecosystems
-- **Automatic failover** with onRevert/onAbort
-
-### 📊 **Chainlink Oracles**
-- **Real-time price feeds** for accurate valuations
-- **Off-chain computation** for complex verification
-- **Decentralized data** for trust and reliability
-- **Automated triggers** for escrow releases
-
----
-
-## 🎨 Frontend Architecture
-
-### Role-Based Dashboard
-```
-├── Landing Page (Hero + Features)
-├── Auth Flow (Wallet + KYC + Role Selection)
-├── Client Dashboard (Create Escrows + Manage)
-├── Freelancer Dashboard (Browse + Submit Work)
-├── AI Verification Tab (Dual Chat + Evidence Upload)
-├── Profile Page (Trust Score + Achievements)
-├── Transactions (Cross-chain History)
-└── Dispute Center (AI-Assisted Resolution)
-```
-
-### Component Structure
-```typescript
-// Multi-chain wallet connector
-<WalletConnector supportedWallets={['phantom', 'metamask', 'sui', 'ton']} />
-
-// Real zkMe KYC widget
-<KYCVerification userAddress={address} chain={chain} />
-
-// AI verification interface
-<AIVerificationInterface escrowId={id} onComplete={handleResult} />
-
-// Universal dashboard
-<UniversalDashboard userRole={role} chain={chain} />
-```
-
----
-
-## 🔧 API Endpoints
-
-### zkMe Integration
-```
-POST /api/zkme/initialize     # Start KYC process
-GET  /api/zkme/status/:id     # Check verification status  
-POST /api/zkme/webhook        # Handle verification callbacks
-```
-
-### Cross-Chain Escrow
-```
-POST /api/escrow/create       # Create universal escrow
-POST /api/escrow/:id/verify   # Submit for AI verification
-POST /api/escrow/:id/release  # Release funds cross-chain
-GET  /api/escrow/:id/status   # Get transaction status
-```
-
-### Chainlink Integration
-```
-GET  /api/chainlink/price/:pair    # Get price feed data
-POST /api/chainlink/functions      # Submit off-chain request
-GET  /api/chainlink/status/:id     # Check request status
-```
-
----
-
-## 🌐 Live Deployment
-
-### Testnet Addresses
-```
-Solana Program: Yb1FFbcd45RRTh1CmQ1P9aGtCgBd56ewdfJbTa4uEHo
-ZetaChain Gateway: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-Frontend URL: https://aetherlock.vercel.app
-Backend API: https://api.aetherlock.app
-```
-
-### Demo Flow
-1. **Connect Wallet** → Multi-chain support (Phantom, MetaMask, etc.)
-2. **Complete KYC** → Real zkMe verification with live API
-3. **Select Role** → Client or Freelancer dashboard
-4. **Create Escrow** → Cross-chain with Chainlink price feeds
-5. **AI Verification** → Upload evidence, get AI analysis
-6. **Cross-Chain Release** → Automatic via ZetaChain gateway
-
----
-
-## 🏅 Bounty Compliance
-
-### ✅ Universal App Requirements
-- [x] **Connects multiple ecosystems** (Solana + Sui + TON)
-- [x] **ZetaChain omnichain infrastructure** integration
-- [x] **Meaningful business logic** (escrow + verification)
-- [x] **onCall implementation** for cross-chain initiation
-- [x] **onRevert implementation** for failed transaction handling
-- [x] **onAbort implementation** for transaction cleanup
-- [x] **True universal connectivity** across chains
-
-### ✅ Additional Integrations
-- [x] **Real zkMe KYC** (no mockups, live API integration)
-- [x] **Chainlink Oracles** (price feeds + functions)
-- [x] **AI Verification** (AWS Bedrock integration)
-- [x] **Live MVP** (deployed on testnet)
-- [x] **Production-ready** architecture
-
----
-
-## 📋 Environment Setup
-
-### Required API Keys
 ```bash
-# zkMe KYC (get from zkMe dashboard)
-ZKME_API_KEY=your_zkme_api_key
-ZKME_APP_ID=your_zkme_app_id
-
-# AWS Bedrock (for AI verification)
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-
-# ZetaChain (testnet configuration)
-ZETACHAIN_RPC_URL=https://zetachain-athens-evm.blockpi.network/v1/rpc/public
-ZETACHAIN_PRIVATE_KEY=your_zetachain_private_key
-
-# Chainlink (mainnet/testnet addresses)
-CHAINLINK_FUNCTIONS_ROUTER=
+cd frontend
+cp .env.local.example .env.local
+# Edit .env.local with API URLs and RPC endpoints
+npm run dev
 ```
 
-### Development Commands
+**Verify locally:** navigate to `http://localhost:3000`, connect wallet (Phantom/MetaMask), and test escrow creation flow.
+
+---
+
+## 3. Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph Frontend["Frontend Layer (Next.js/React)"]
+        Dashboard["📊 Escrow Dashboard"]
+        KycWidget["🔐 KYC Widget<br/>(zkMe)"]
+        VerificationUI["⚠️ AI Risk<br/>Verification UI"]
+        Notifications["🔔 WebSocket<br/>Notifications"]
+    end
+
+    subgraph Backend["Backend Services (Express/Node.js)"]
+        EscrowService["📋 Escrow Service"]
+        AIService["🤖 AI Verification<br/>Service"]
+        StorageService["💾 IPFS/Pinata<br/>Service"]
+        AuthService["🔑 Auth & Rate<br/>Limiting"]
+    end
+
+    subgraph OracleServices["Oracle & Identity Services"]
+        Chainlink["⛓️ Chainlink Functions<br/>Router & DON"]
+        zkMe["🆔 zkMe KYC<br/>API"]
+        IPFS["🌐 IPFS/Pinata<br/>Web3.Storage"]
+    end
+
+    subgraph MessageRouter["Multi-Chain Message Router"]
+        XCall["🔄 ZetaChain xCall<br/>Gateway"]
+    end
+
+    subgraph Blockchains["Blockchain Layer"]
+        SolanaProgram["⚓ Solana Program<br/>(Anchor)<br/>- new_escrow<br/>- verify_escrow<br/>- release_escrow"]
+        ZetaContract["⚙️ ZetaChain Contract<br/>(Solidity)<br/>- onCall<br/>- onRevert<br/>- onAbort"]
+        SomniaContract["📍 Somnia Settlement<br/>(Solidity)<br/>- handleSettlement<br/>- releaseSettlement"]
+        TONContract["📱 TON Smart<br/>Contract<br/>(FunC)"]
+    end
+
+    subgraph AILayer["AI Verification Layer"]
+        Arcanum["🧠 Arcanum.ai<br/>(Primary)"]
+        OpenAI["🤖 OpenAI GPT-4<br/>(Fallback 1)"]
+        Claude["💭 Anthropic Claude<br/>(Fallback 2)"]
+        EdVerify["✍️ Ed25519 Signing<br/>(Proof)"]
+    end
+
+    %% Frontend to Backend
+    Dashboard -->|REST API| EscrowService
+    KycWidget -->|Embed & Callback| AuthService
+    VerificationUI -->|Poll Status| AIService
+    Notifications -->|WebSocket| Backend
+
+    %% Backend to Services
+    EscrowService -->|Create/Update| StorageService
+    AIService -->|Fetch Evidence| StorageService
+    AuthService -->|Rate Limit| EscrowService
+    EscrowService -->|Trigger Chainlink| Chainlink
+
+    %% Backend to Oracle Services
+    AIService -->|Call API| Arcanum
+    Arcanum -->|Risk Score| AIService
+    zkMe -->|Webhook| AuthService
+    StorageService -->|Pin/Fetch| IPFS
+
+    %% Backend to Message Router
+    EscrowService -->|Send Message| XCall
+
+    %% Message Router to Blockchains
+    XCall -->|xCall| SolanaProgram
+    XCall -->|xCall| ZetaContract
+    XCall -->|xCall| SomniaContract
+    XCall -->|xCall| TONContract
+
+    %% Blockchain Cross-Chain
+    SolanaProgram -->|Emit Event| ZetaContract
+    ZetaContract -->|onCall| SumniaContract
+    ZetaContract -->|onRevert| SolanaProgram
+    SumniaContract -->|Callback| ZetaContract
+
+    %% AI Layer
+    AIService -->|Evidence| Arcanum
+    AIService -->|Fallback| OpenAI
+    OpenAI -->|Fallback| Claude
+    AIService -->|Sign Result| EdVerify
+
+    %% Chainlink
+    Chainlink -->|Off-Chain Compute| AILayer
+    Chainlink -->|Return Result| ZetaContract
+
+    style Frontend fill:#e1f5ff
+    style Backend fill:#f3e5f5
+    style OracleServices fill:#fff3e0
+    style MessageRouter fill:#fce4ec
+    style Blockchains fill:#e8f5e9
+    style AILayer fill:#f1f8e9
+```
+
+---
+
+## 4. Components & Responsibilities
+
+| Component | Language | Role |
+|-----------|----------|------|
+| **Solana Program** | Rust/Anchor | Manages escrow state, holds collateral, verifies cross-chain messages from ZetaChain |
+| **ZetaChain Universal App** | Solidity | Omnichain gateway; orchestrates messages between Solana and target chains; handles xCall, onCall, onRevert, onAbort |
+| **Somnia Contract** | Solidity | Target-chain escrow handler; executes final settlement on Somnia testnet |
+| **TON Contract** | FunC (optional) | Alternative target chain for cross-chain settlement |
+| **Backend Services** | Node.js/Express | REST API for escrow CRUD, zkMe KYC webhook, Chainlink Functions triggering, AI verification, IPFS pinning, notifications |
+| **Frontend** | React/Next.js | Wallet connection, escrow creation UI, KYC widget integration, AI risk verification dashboard, notifications |
+| **Chainlink Functions** | JavaScript | Off-chain computation: fetches price feeds, validates escrow conditions, returns verified result to smart contract |
+| **zkMe KYC** | API | Identity verification; backend receives webhook with KYC result; frontend embeds widget |
+| **AI Verification** | Python/TypeScript | Analyzes evidence (documents, transaction history), returns risk score + confidence; results signed with Ed25519 |
+| **IPFS / Pinata / Web3.Storage** | Distributed | Evidence storage; signatures stored on IPFS; referenced in escrow record via content hash |
+
+---
+
+## 5. ZetaChain (Universal App)
+
+### Role of ZetaChain
+
+ZetaChain is the **omnichain orchestration layer**, not the primary ledger. AetherLock uses ZetaChain's Universal App framework to:
+
+1. **Accept xCall messages** from Solana (via Solana Program → ZetaChain Gateway).
+2. **Route escrow logic** to target chains (Sui, TON, Somnia).
+3. **Handle onCall, onRevert, onAbort** lifecycle events.
+4. **Emit finality proof** back to Solana for state reconciliation.
+
+### Integration Flow: Solana → ZetaChain → Target Chain
+
+```
+1. User calls Solana Program: new_escrow(amount, counterparty_addr, target_chain, settlement_addr)
+   ↓
+2. Solana Program emits xCall message to ZetaChain Gateway
+   (via Wormhole or native ZetaChain integration)
+   ↓
+3. ZetaChain Universal App receives onCall(sender, data)
+   ↓
+4. AetherLockUniversal.sol routes message to target chain:
+   - If target == SOMNIA: call xCall(Somnia, settlement_payload)
+   - If target == TON: call xCall(TON, settlement_payload)
+   ↓
+5. Target-chain contract executes settlement logic (lock collateral, await verification)
+   ↓
+6. Upon verification success, target chain emits onAbort(success=true) or
+   direct callback via xCall to Solana Program
+   ↓
+7. Solana Program updates escrow state: VERIFIED → RELEASED / DISPUTED
+
+
+### Deployment & Gateway Address
+
+**ZetaChain Testnet Gateway Address** (placeholder; replace with actual):
+```
+ZETACHAIN_GATEWAY_ADDRESS=0x9E42bAc5c9d71c26900a9c35eb876d8d5f1166a0
+```
+
+**Retrieve actual gateway address:**
 ```bash
-# Install all dependencies
-npm run install:all
+# Query ZetaChain testnet explorer or use:
+curl https://api.athens3.zetachain.com/rpc \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_call","params":[{"to":"0x...","data":"0x..."}],"id":1}'
+```
 
-# Start development environment
-npm run dev:all
-
-# Deploy smart contracts
-npm run deploy:contracts
-
-# Run tests
-npm run test:all
-
-# Build for production
-npm run build:all
+**Deploy to ZetaChain Testnet:**
+```bash
+cd zeta-contracts
+npx hardhat deploy --network zetachain-testnet
+# Note the deployed contract address
 ```
 
 ---
 
-## 🎯 Demo Script
+## 6. Somnia Integration
 
-### Judge Evaluation Checklist
-1. **Universal Connectivity** ✅
-   - Multi-chain wallet connection
-   - Cross-chain escrow creation
-   - ZetaChain gateway integration
+### Why Somnia?
 
-2. **onCall/onRevert/onAbort** ✅
-   - Demonstrate cross-chain message handling
-   - Show revert scenario with automatic refund
-   - Trigger abort with cleanup process
+Somnia testnet offers:
+- **Fast finality** (sub-second)
+- **High throughput** (thousands of TPS)
+- **EVM-compatible** (Solidity contracts)
+- **Bounty opportunities** for hackathon participants
 
-3. **Real zkMe Integration** ✅
-   - Live KYC verification process
-   - Multi-chain identity support
-   - Webhook-based status updates
+### Somnia Testnet Details
 
-4. **Chainlink Oracles** ✅
-   - Real-time price feed integration
-   - Off-chain computation for verification
-   - Automated escrow triggers
+| Parameter | Value |
+|-----------|-------|
+| **Chain ID** | `485` (or check current) |
+| **RPC Endpoint** | `https://somnia-testnet-rpc.example.com` |
+| **Block Explorer** | `https://somnia-testnet-explorer.example.com` |
+| **Native Token** | `SMN` (test tokens available from faucet) |
+| **Faucet** | `https://somnia-testnet-faucet.example.com` |
 
-5. **AI Verification** ✅
-   - Evidence upload and analysis
-   - AWS Bedrock integration
-   - Confidence scoring and feedback
+### Deploy Contract to Somnia
+
+1. **Obtain test tokens:**
+   ```bash
+   # Visit faucet or use CLI
+   curl https://somnia-testnet-faucet.example.com/drip \
+     -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"address":"0xYourAddressHere"}'
+   ```
+
+2. **Create Somnia deployment config** (`contracts/networks.js`):
+   ```javascript
+   module.exports = {
+     somnia_testnet: {
+       url: process.env.SOMNIA_RPC_URL || 'https://somnia-testnet-rpc.example.com',
+       accounts: [process.env.PRIVATE_KEY],
+       chainId: 485,
+     }
+   };
+   ```
+
+3. **Add to Hardhat config** (`hardhat.config.js`):
+   ```javascript
+   require('@nomicfoundation/hardhat-toolbox');
+   
+   module.exports = {
+     solidity: '0.8.20',
+     networks: {
+       somnia_testnet: {
+         url: process.env.SOMNIA_RPC_URL,
+         accounts: [process.env.PRIVATE_KEY],
+         chainId: 485,
+       }
+     }
+   };
+   ```
+
+4. **Deploy settlement contract:**
+   ```bash
+   export SOMNIA_RPC_URL=https://somnia-testnet-rpc.example.com
+   export PRIVATE_KEY=0xYourPrivateKeyHere
+   npx hardhat run scripts/deploy-somnia.js --network somnia_testnet
+   ```
+
+5. **Integration with ZetaChain:**
+   - Record the deployed contract address.
+   - Update AetherLockUniversal.sol `_routeToTargetChain()` to recognize Somnia's chain ID.
+   - Call xCall with Somnia settlement contract as target.
+
+### 
+
+### Submitting for Somnia Bounty
+
+1. Deploy contract to Somnia testnet.
+2. Record contract address and transaction hash.
+3. Include demo link showing cross-chain escrow (Solana → ZetaChain → Somnia).
+4. Submit via Somnia bounty portal with GitHub repo link.
 
 ---
 
-## 🚀 Next Steps
+## 7. Solana Program
 
-### Phase 1: Core Universal App ✅
-- [x] Cross-chain smart contracts
-- [x] ZetaChain integration
-- [x] onCall/onRevert/onAbort functions
+### Anchor Program Structure
 
-### Phase 2: Enhanced Features ✅
-- [x] zkMe KYC integration
-- [x] Chainlink oracle integration
-- [x] AI verification system
-
-### Phase 3: Production Deployment 🔄
-- [ ] Mainnet deployment
-- [ ] Security audits
-- [ ] Performance optimization
-- [ ] User onboarding
-
----
-
-## 📞 Support & Documentation
-
-- **Demo Video**: [YouTube Link]
-- **Live App**: https://aetherlock-universal.vercel.app
-- **Documentation**: https://aetherlockprotocol.mintlify.app/
-- **GitHub**: https://github.com/aetherlock/universal-protocol
-
-- **Scaling my Startup**
+**File: `programs/aetherlock/src/lib.rs`**
